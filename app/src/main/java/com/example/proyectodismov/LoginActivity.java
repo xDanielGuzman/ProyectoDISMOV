@@ -18,6 +18,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Locale;
 
@@ -58,6 +59,7 @@ public class LoginActivity extends AppCompatActivity {
     private void login() {
         String user = email.getText().toString().trim();
         String pass = password.getText().toString().trim();
+        FirebaseUser userauth = mAuth.getCurrentUser();
         if(user.isEmpty()){
             email.setError("Introduzca un correo");
         }
@@ -69,8 +71,15 @@ public class LoginActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if(task.isSuccessful()){
-                        Toast.makeText(LoginActivity.this, "Inicio de sesion exitoso", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                        if(userauth.isEmailVerified() == true){
+                            Toast.makeText(LoginActivity.this, "Inicio de sesion exitoso", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                        }
+                        else{
+                            userauth.sendEmailVerification();
+                            Toast.makeText(LoginActivity.this, "Favor de autenticar su correo", Toast.LENGTH_SHORT).show();
+                        }
+
                     }
                     else{
                         Toast.makeText(LoginActivity.this, "Inicio de sesion fallido" + task.getException(), Toast.LENGTH_SHORT).show();
