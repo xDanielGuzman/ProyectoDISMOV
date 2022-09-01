@@ -56,7 +56,7 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void login() {
+    private void checkauth(){
         String user = email.getText().toString().trim();
         String pass = password.getText().toString().trim();
         FirebaseUser userauth = mAuth.getCurrentUser();
@@ -66,27 +66,27 @@ public class LoginActivity extends AppCompatActivity {
         if(pass.isEmpty()){
             password.setError("Introduzca una contraseña");
         }
+        if(!userauth.isEmailVerified()){
+            Toast.makeText(LoginActivity.this, "Favor de autenticar su correo", Toast.LENGTH_SHORT).show();
+        }
         else{
+            login();
+        }
+    }
+    private void login() {
+        String user = email.getText().toString().trim();
+        String pass = password.getText().toString().trim();
+        FirebaseUser uuserauth = mAuth.getCurrentUser();
             mAuth.signInWithEmailAndPassword(user,pass).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
-                    if(task.isSuccessful()){
-                        if(userauth.isEmailVerified() == true){
-                            Toast.makeText(LoginActivity.this, "Inicio de sesion exitoso", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                        }
-                        else{
-                            userauth.sendEmailVerification();
-                            Toast.makeText(LoginActivity.this, "Favor de autenticar su correo", Toast.LENGTH_SHORT).show();
-                        }
-
-                    }
-                    else{
+                    if (task.isSuccessful()) {
+                        Toast.makeText(LoginActivity.this, "Inicio de sesion exitoso", Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                    } else {
                         Toast.makeText(LoginActivity.this, "Inicio de sesion fallido" + task.getException(), Toast.LENGTH_SHORT).show();
                     }
                 }
             });
         }
-
     }
-}
